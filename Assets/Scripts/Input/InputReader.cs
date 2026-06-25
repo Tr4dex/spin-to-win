@@ -1,16 +1,15 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Windows;
 
 public class InputReader : MonoBehaviour {
     public event Action<Vector2> OnMoveEvent;
     public event Action OnPauseEvent;
 
     public void OnMove(InputAction.CallbackContext context) {
-        if (context.performed) {
+        if (context.performed || context.canceled) {
             OnMoveEvent?.Invoke(context.ReadValue<Vector2>());
-            Debug.Log("Input" + context);
+            Debug.Log("Input" + context.ReadValue<Vector2>());
         }
     }
 
@@ -19,4 +18,4 @@ public class InputReader : MonoBehaviour {
             OnPauseEvent?.Invoke();
         }
     }
-}
+}//

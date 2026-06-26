@@ -17,7 +17,7 @@ public class InputReader : MonoBehaviour {
     public void OnFire(InputAction.CallbackContext context) {
         if (context.performed) {
             OnFireEvent?.Invoke();
-            Debug.Log("Fire input");
+            //Debug.Log("Fire input");
         }
     }
 

@@ -149,10 +149,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveManager
   spawner: {fileID: 1468603054}
-  enemiesPerWave: 10
+  startingEnemies: 5
+  enemiesIncreasePerWave: 2
   spawnDelay: 0.5
   timeBetweenWaves: 5
+  bossWave: 5
   OnWaveStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnGameWin:
     m_PersistentCalls:
       m_Calls: []
 --- !u!4 &326155409
@@ -888,6 +893,7 @@ MonoBehaviour:
   enemyPool: {fileID: 1468603056}
   castleTransform: {fileID: 433991632}
   spawnRadius: 10
+  bossPrefab: {fileID: 2291043724069924453, guid: 053f425ab419e4e408d5ce5ddad75fc6, type: 3}
 --- !u!4 &1468603055
 Transform:
   m_ObjectHideFlags: 0

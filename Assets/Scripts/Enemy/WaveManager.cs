@@ -5,11 +5,14 @@ using UnityEngine.Events;
 public class WaveManager : MonoBehaviour {
     [SerializeField] private EnemySpawner spawner;
 
-    [SerializeField] private int enemiesPerWave = 10;
+    [SerializeField] private int startingEnemies = 5;
+    [SerializeField] private int enemiesIncreasePerWave = 2;
     [SerializeField] private float spawnDelay = 0.5f;
     [SerializeField] private float timeBetweenWaves = 5f;
+    [SerializeField] private int bossWave = 5;
 
     public UnityEvent<int> OnWaveStart;
+    public UnityEvent OnGameWin;
 
     private int currentWave = 0;
     private int aliveEnemies;
@@ -20,19 +23,29 @@ public class WaveManager : MonoBehaviour {
 
     private IEnumerator StartWave() {
         currentWave++;
-        aliveEnemies = enemiesPerWave;
-
         OnWaveStart?.Invoke(currentWave);
 
-        for (int i = 0; i < enemiesPerWave; i++) {
-            EnemyMovement enemy = spawner.SpawnEnemy();
+        if (currentWave == bossWave) {
+            aliveEnemies = 1;
+            EnemyMovement boss = spawner.SpawnBoss();
+            if (boss != null) {
+                EnemyHealth bossHealth = boss.GetComponent<EnemyHealth>();
+                bossHealth.OnEnemyDeath.AddListener(OnBossDeath);
+            }
+        } else {
+            // Formula to increase enemies: 5, then 7, then 9, etc.
+            int enemiesToSpawn = startingEnemies + ((currentWave - 1) * enemiesIncreasePerWave);
+            aliveEnemies = enemiesToSpawn;
 
-            EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
-
-            enemyHealth.OnEnemyDeath.RemoveListener(OnEnemyDeath);
-            enemyHealth.OnEnemyDeath.AddListener(OnEnemyDeath);
-
-            yield return new WaitForSeconds(spawnDelay);
+            for (int i = 0; i < enemiesToSpawn; i++) {
+                EnemyMovement enemy = spawner.SpawnEnemy();
+                if (enemy != null) {
+                    EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+                    enemyHealth.OnEnemyDeath.RemoveListener(OnEnemyDeath);
+                    enemyHealth.OnEnemyDeath.AddListener(OnEnemyDeath);
+                }
+                yield return new WaitForSeconds(spawnDelay);
+            }
         }
     }
 
@@ -43,17 +56,24 @@ public class WaveManager : MonoBehaviour {
 
         aliveEnemies--;
         if (aliveEnemies <= 0) {
-            // if currWave == n: SpawnBoss; return null;
-
             StartCoroutine(NextWave());
+        }
+    }
+
+    private void OnBossDeath(EnemyHealth bossHealth) {
+        bossHealth.OnEnemyDeath.RemoveListener(OnBossDeath);
+
+        Destroy(bossHealth.gameObject);
+
+        aliveEnemies--;
+        if (aliveEnemies <= 0) {
+            Debug.Log("Boss defeated! You win!");
+            OnGameWin?.Invoke();
         }
     }
 
     private IEnumerator NextWave() {
         yield return new WaitForSeconds(timeBetweenWaves);
-
-        // if currWave == n: GameOver()
-
         StartCoroutine(StartWave());
     }
 }

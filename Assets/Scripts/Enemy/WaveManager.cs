@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class WaveManager : MonoBehaviour {
     [SerializeField] private EnemySpawner spawner;
@@ -8,7 +9,9 @@ public class WaveManager : MonoBehaviour {
     [SerializeField] private float spawnDelay = 0.5f;
     [SerializeField] private float timeBetweenWaves = 5f;
 
-    private int currentWave = 1;
+    public UnityEvent<int> OnWaveStart;
+
+    private int currentWave = 0;
     private int aliveEnemies;
 
     private void Start() {
@@ -18,6 +21,8 @@ public class WaveManager : MonoBehaviour {
     private IEnumerator StartWave() {
         currentWave++;
         aliveEnemies = enemiesPerWave;
+
+        OnWaveStart?.Invoke(currentWave);
 
         for (int i = 0; i < enemiesPerWave; i++) {
             EnemyMovement enemy = spawner.SpawnEnemy();
@@ -38,12 +43,16 @@ public class WaveManager : MonoBehaviour {
 
         aliveEnemies--;
         if (aliveEnemies <= 0) {
+            // if currWave == n: SpawnBoss; return null;
+
             StartCoroutine(NextWave());
         }
     }
 
     private IEnumerator NextWave() {
         yield return new WaitForSeconds(timeBetweenWaves);
+
+        // if currWave == n: GameOver()
 
         StartCoroutine(StartWave());
     }

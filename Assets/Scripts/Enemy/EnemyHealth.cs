@@ -19,4 +19,8 @@ public class EnemyHealth : MonoBehaviour {
     private void Die() {
         OnEnemyDeath?.Invoke(this);
     }
+
+    public void Kill() {
+        health.TakeDamage(health.CurrentHealth);
+    }
 }

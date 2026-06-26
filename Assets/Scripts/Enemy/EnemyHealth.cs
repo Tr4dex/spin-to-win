@@ -1,14 +1,22 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemyHealth : MonoBehaviour {
     [SerializeField] private Health health;
 
+    public UnityEvent<EnemyHealth> OnEnemyDeath;
+
     private void Awake() {
         health ??= GetComponent<Health>();
+
         health.OnDeath.AddListener(Die);
     }
 
+    public void ResetEnemy() {
+        health.ResetHealth();
+    }
+
     private void Die() {
-        Destroy(gameObject);
+        OnEnemyDeath?.Invoke(this);
     }
 }

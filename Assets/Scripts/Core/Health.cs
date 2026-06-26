@@ -53,4 +53,11 @@ public class Health : MonoBehaviour {
 
         OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
     }
+
+    public void ResetHealth() {
+        isDead = false;
+        CurrentHealth = maxHealth;
+
+        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+    }
 }
